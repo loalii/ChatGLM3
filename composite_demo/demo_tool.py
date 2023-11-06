@@ -75,6 +75,7 @@ def main(top_p: float, temperature: float, prompt_text: str):
             st.error('YAML format error in tools definition')
     else:
         tools = get_tools()
+    print("===TOOLS ", tools)
 
     if 'tool_history' not in st.session_state:
         st.session_state.tool_history = []

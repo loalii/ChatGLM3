@@ -13,7 +13,7 @@ from conversation import Conversation
 
 TOOL_PROMPT = 'Answer the following questions as best as you can. You have access to the following tools:'
 
-MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
+MODEL_PATH = os.environ.get('MODEL_PATH', '/share/lilin/chatglm3-6b')
 
 @st.cache_resource
 def get_client() -> Client:

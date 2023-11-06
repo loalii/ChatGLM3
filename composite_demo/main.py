@@ -1,3 +1,8 @@
+import os
+os.environ["MODEL_PATH"] = "/share/lilin/chatglm3-6b"
+os.environ["HTTP_PROXY"]=''
+os.environ["HTTPS_PROXY"]=''
+
 from enum import Enum
 import streamlit as st
 
