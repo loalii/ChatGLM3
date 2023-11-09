@@ -11,7 +11,16 @@ from tool_registry import dispatch_tool, get_tools
 
 MAX_LENGTH = 8192
 TRUNCATE_LENGTH = 1024
-
+# - name: get_sentence_length
+#   description: Get the current sentence length
+#   parameters:
+#     type: object
+#     properties:
+#       input_text:
+#         type: string
+#         description: The input sentence, e.g. Hello, world.
+#     required:
+#     - input_text
 EXAMPLE_TOOL = {
     "name": "get_current_weather",
     "description": "Get the current weather in a given location",
@@ -70,6 +79,8 @@ def main(top_p: float, temperature: float, prompt_text: str):
                 height=400,
             )
         tools = yaml_to_dict(tools)
+        print("*"*40)
+        print(tools)
 
         if not tools:
             st.error('YAML format error in tools definition')
@@ -120,6 +131,8 @@ def main(top_p: float, temperature: float, prompt_text: str):
                 stop_sequences=[str(r) for r in (Role.USER, Role.OBSERVATION)],
             ):
                 token = response.token
+                print("TTTTTTTTTTTOOOOOOOOOOOOOOOOOKKKKKKKKKKKKEEEEEEEEEEEEEEENNNNNNNNNNNN")
+                print(token)
                 if response.token.special:
                     print("=== Output:")
                     print(output_text)
@@ -154,7 +167,11 @@ def main(top_p: float, temperature: float, prompt_text: str):
                             markdown_placeholder = message_placeholder.empty()
                             
                             try:
+                                print("CCCCCCCCCCCOOOOOOOOOOOOOOODDDDDDDDDDDDDDDEEEEEEEEEEE")
+                                print(output_text)
                                 code = extract_code(output_text)
+                                print("code")
+                                print(code)
                                 args = eval(code, {'tool_call': tool_call}, {})
                             except:
                                 st.error('Failed to parse tool call')
