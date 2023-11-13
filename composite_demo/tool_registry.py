@@ -76,7 +76,7 @@ def random_number_generator(
         raise TypeError("Range must be a tuple of integers")
 
     import random
-    return f"生成的随机数结果为{random.Random(seed).randint(*range)}"
+    return f"生成的随机数为{random.Random(seed).randint(*range)}"
 
 @register_tool
 def get_sentence_length(
@@ -95,7 +95,7 @@ def exponentiation_calculation(
     """
     返回指数计算的结果，底数 `base` 的指数 `power` 次方
     """
-    return f"以{base}的{power}次方的计算结果为{base**power}"
+    return f"{base}的{power}次方的计算结果为{base**power}"
 
 @register_tool
 def web_search(
@@ -104,7 +104,7 @@ def web_search(
 ) -> str:
     """
     从网络上获得 `keyword` 的习惯内容信息。
-    在你要回答你现有知识无法回答的问题时，你应该使用这个工具（尤其是当你需要获得最新的实时信息，或者你缺少相关信息时，在这种情况下请更倾向于使用他）。
+    在你要回答你现有知识无法回答的问题时，你应该使用这个工具（尤其是当你需要获得最新的实时信息，或者你缺少相关信息时，在这种情况下请更倾向于使用这个工具）。
     """
     # Get related contents from internet. 
     # You should use this function especially when you meet something beyond your knowledge. 
@@ -115,7 +115,7 @@ def web_search(
     # # os.environ["SERPAPI_API_KEY"] = "1acc98c79ed21041c727e5ecca30eba3380d5d290ce9e56d4434264fdfa34f54"
     # os.environ["HTTP_PROXY"]='http://10.10.20.100:1089'
     # os.environ["HTTPS_PROXY"]='http://10.10.20.100:1089'
-    search_engine = 'ddgs'
+    search_engine = 'baidu'
     if search_engine == 'ddgs':
         from duckduckgo_search import DDGS
         content = DDGS().text(keyword, region="cn-zh", max_results=1).__next__()

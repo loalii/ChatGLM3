@@ -130,6 +130,11 @@ def main():
         )
     else:
         raise ValueError(f"Unknown train format: {data_args.train_format}")
+
+    #########
+
+
+
     if training_args.local_rank < 1:
         sanity_check(train_dataset[0]['input_ids'], train_dataset[0]['labels'], tokenizer)
 

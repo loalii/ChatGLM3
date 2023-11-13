@@ -14,8 +14,10 @@ DATESTR=`date +%Y%m%d-%H%M%S`
 RUN_NAME=tool_alpaca_ft
 DATASET_PATH=formatted_data/tool_alpaca.jsonl
 
-BASE_MODEL_PATH=THUDM/chatglm3-6b
+BASE_MODEL_PATH=/share/lilin/chatglm3-6b
 OUTPUT_DIR=output/${RUN_NAME}-${DATESTR}-${LR}
+
+# CUDA_VISIBLE_DEVICES=2,3,4,5
 
 mkdir -p $OUTPUT_DIR
 
