@@ -18,7 +18,7 @@ def run_tool(tools, llm, prompt_chain: List[str]):
             loaded_tolls.append(tool)
     agent = initialize_agent(
         loaded_tolls, llm,
-        agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+        agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
         verbose=True,
         handle_parsing_errors=True
     )
@@ -27,20 +27,20 @@ def run_tool(tools, llm, prompt_chain: List[str]):
 
 
 if __name__ == "__main__":
-    model_path = "THUDM/chatglm3-6b"
+    model_path = "/share/lilin/chatglm3-6b"
     llm = ChatGLM3()
     llm.load_model(model_name_or_path=model_path)
 
     # arxiv: 单个工具调用示例 1
-    run_tool(["arxiv"], llm, [
-        "帮我查询GLM-130B相关工作"
-    ])
+    # run_tool(["arxiv"], llm, [
+    #     "帮我查询GLM-130B相关工作"
+    # ])
 
     # weather: 单个工具调用示例 2
-    run_tool([Weather()], llm, [
-        "今天北京天气怎么样？",
-        "What's the weather like in Shanghai today",
-    ])
+    # run_tool([Weather()], llm, [
+    #     "今天北京天气怎么样？",
+    #     "What's the weather like in Shanghai today",
+    # ])
 
     # calculator: 单个工具调用示例 3
     run_tool([Calculator()], llm, [

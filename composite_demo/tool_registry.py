@@ -5,9 +5,12 @@ import traceback
 from types import GenericAlias
 from typing import get_origin, Annotated, Literal
 
+# 注册机
 _TOOL_HOOKS = {}
 _TOOL_DESCRIPTIONS = {}
 
+
+# 装饰部分写在装饰器函数函数体内的，装饰即执行；装饰部分写在内部函数wrapper内的，装饰do nothing，调用才执行
 def register_tool(func: callable):
     tool_name = func.__name__
     tool_description = inspect.getdoc(func).strip()
@@ -115,7 +118,7 @@ def web_search(
     # # os.environ["SERPAPI_API_KEY"] = "1acc98c79ed21041c727e5ecca30eba3380d5d290ce9e56d4434264fdfa34f54"
     # os.environ["HTTP_PROXY"]='http://10.10.20.100:1089'
     # os.environ["HTTPS_PROXY"]='http://10.10.20.100:1089'
-    search_engine = 'baidu'
+    search_engine = 'ddgs'
     if search_engine == 'ddgs':
         from duckduckgo_search import DDGS
         content = DDGS().text(keyword, region="cn-zh", max_results=1).__next__()

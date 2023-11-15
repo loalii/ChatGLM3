@@ -12,16 +12,16 @@ SAVE_INTERVAL=50
 
 DATESTR=`date +%Y%m%d-%H%M%S`
 RUN_NAME=tool_alpaca_ft
-DATASET_PATH=formatted_data/tool_alpaca.jsonl
+DATASET_PATH=formatted_data/tool_alpaca_zh.jsonl
 
 BASE_MODEL_PATH=/share/lilin/chatglm3-6b
 OUTPUT_DIR=output/${RUN_NAME}-${DATESTR}-${LR}
 
-# CUDA_VISIBLE_DEVICES=2,3,4,5
+# CUDA_VISIBLE_DEVICES="3,4,5,7"
 
 mkdir -p $OUTPUT_DIR
 
-torchrun --standalone --nnodes=1 --nproc_per_node=$NUM_GPUS finetune.py \
+CUDA_VISIBLE_DEVICES="3,4,5,7" torchrun --standalone --nnodes=1 --nproc_per_node=$NUM_GPUS finetune.py \
     --train_format multi-turn \
     --train_file $DATASET_PATH \
     --max_seq_length $MAX_SEQ_LEN \
