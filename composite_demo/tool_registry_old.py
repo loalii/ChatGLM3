@@ -1,16 +1,13 @@
-import copy
+from copy import deepcopy
 import inspect
 from pprint import pformat
 import traceback
 from types import GenericAlias
-from typing import get_origin, Annotated, Literal
+from typing import get_origin, Annotated
 
-# 注册机
 _TOOL_HOOKS = {}
 _TOOL_DESCRIPTIONS = {}
 
-
-# 装饰部分写在装饰器函数函数体内的，装饰即执行；装饰部分写在内部函数wrapper内的，装饰do nothing，调用才执行
 def register_tool(func: callable):
     tool_name = func.__name__
     tool_description = inspect.getdoc(func).strip()
@@ -59,19 +56,18 @@ def dispatch_tool(tool_name: str, tool_params: dict) -> str:
     return str(ret)
 
 def get_tools() -> dict:
-    return copy.deepcopy(_TOOL_DESCRIPTIONS)
+    return deepcopy(_TOOL_DESCRIPTIONS)
 
 # Tool Definitions
 
 @register_tool
 def random_number_generator(
-    # seed: Annotated[int, '随机数生成器使用的种子', True], 
-    range: Annotated[tuple[int, int], '生成随机数的范围', True],
+    seed: Annotated[int, 'The random seed used by the generator', True], 
+    range: Annotated[tuple[int, int], 'The range of the generated numbers', True],
 ) -> int:
     """
-    随机生成一个数x, 使得 `range[0]` <= x < `range[1]`
+    Generates a random number x, s.t. range[0] <= x < range[1]
     """
-    seed= 42
     if not isinstance(seed, int):
         raise TypeError("Seed must be an integer")
     if not isinstance(range, tuple):
@@ -80,63 +76,7 @@ def random_number_generator(
         raise TypeError("Range must be a tuple of integers")
 
     import random
-    return f"生成的随机数为{random.Random(seed).randint(*range)}"
-
-@register_tool
-def get_sentence_length(
-    input_text: Annotated[str, '输入的句子', True],
-) -> int:
-    """
-    获取句子 `input_text` 的长度
-    """
-    return f"这句话{input_text}的长度为{len(input_text)}"
-
-@register_tool
-def exponentiation_calculation(
-    base: Annotated[int, '底数', True], 
-    power: Annotated[int, '指数', True],
-) -> int:
-    """
-    返回指数计算的结果，底数 `base` 的指数 `power` 次方
-    """
-    return f"{base}的{power}次方的计算结果为{base**power}"
-
-@register_tool
-def web_search(
-    keyword: Annotated[str, '搜索使用的关键字', True],
-    # search_engine: Annotated[Literal['ddgs', 'baidu'], '使用的搜索引擎', False] = 'ddgs', 
-) -> str:
-    """
-    从网络上获得 `keyword` 的习惯内容信息。
-    在你要回答你现有知识无法回答的问题时，你应该使用这个工具（尤其是当你需要获得最新的实时信息，或者你缺少相关信息时，在这种情况下请更倾向于使用这个工具）。
-    """
-    # Get related contents from internet. 
-    # You should use this function especially when you meet something beyond your knowledge. 
-
-
-    # import os
-    # # os.environ["OPENAI_API_KEY"] = "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"
-    # # os.environ["SERPAPI_API_KEY"] = "1acc98c79ed21041c727e5ecca30eba3380d5d290ce9e56d4434264fdfa34f54"
-    # os.environ["HTTP_PROXY"]='http://10.10.20.100:1089'
-    # os.environ["HTTPS_PROXY"]='http://10.10.20.100:1089'
-    search_engine = 'ddgs'
-    if search_engine == 'ddgs':
-        from duckduckgo_search import DDGS
-        search_iter = DDGS().text(keyword, region="cn-zh", max_results=1)
-        content = search_iter.__next__()
-        return content['body'].replace('\\n', '')
-    elif search_engine == 'baidu':
-    # print("+"*15, "ddgs搜索结果", "+"*15)
-    # print(content['title'])
-    # print("+"*40)
-        from baidusearch.baidusearch import search
-        content = search(keyword, 1)[0]
-        return content['abstract'].replace('\\n', '')
-    else:
-        print(f"错误的搜索引擎{search_engine}，将使用百度")
-        from baidusearch.baidusearch import search
-        content = search(keyword, 1)[0]
-        return content['abstract'].replace('\\n', '')
+    return random.Random(seed).randint(*range)
 
 @register_tool
 def get_weather(

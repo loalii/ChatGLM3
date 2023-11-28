@@ -8,3 +8,5 @@ ToolAlpaca/
 AdvertiseGen/
 *.gz
 *.idea
+*.log
+*.pyc

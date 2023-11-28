@@ -1,6 +1,7 @@
 protobuf
 transformers>=4.30.2
 cpm_kernels
+<<<<<<< HEAD
 torch>=2.0
 gradio~=3.39
 sentencepiece
@@ -11,3 +12,18 @@ fastapi>=0.104.1
 uvicorn~=0.24.0
 sse_starlette
 loguru~=0.7.2
+=======
+torch==2.1.0
+gradio==3.39
+mdtex2html
+sentencepiece
+accelerate
+sse-starlette
+streamlit==1.28.0
+fastapi==0.95.1
+typing_extensions==4.4.0
+uvicorn
+sse_starlette
+loguru
+openai==0.27.2
+>>>>>>> 0b453e5 (1)
