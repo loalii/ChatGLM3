@@ -13,8 +13,12 @@ from conversation import Conversation
 
 TOOL_PROMPT = 'Answer the following questions as best as you can. You have access to the following tools:'
 
+<<<<<<< HEAD
 MODEL_PATH = os.environ.get('MODEL_PATH', '/share/lilin/chatglm3-6b')
 # MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
+=======
+MODEL_PATH = os.environ.get('MODEL_PATH', '/home/lilin/chatglm3-6b')
+>>>>>>> 0b99c5a9e743e3dbe369fdc8d70b15a98c67104b
 PT_PATH = os.environ.get('PT_PATH', None)
 TOKENIZER_PATH = os.environ.get("TOKENIZER_PATH", MODEL_PATH)
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'

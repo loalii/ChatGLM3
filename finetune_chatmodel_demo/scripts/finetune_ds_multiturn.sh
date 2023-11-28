@@ -14,7 +14,11 @@ DATESTR=`date +%Y%m%d-%H%M%S`
 RUN_NAME=tool_alpaca_ft
 DATASET_PATH=formatted_data/tool_alpaca_mixed.jsonl
 
+<<<<<<< HEAD
 BASE_MODEL_PATH=/share/lilin/chatglm3-6b
+=======
+BASE_MODEL_PATH=/home/lilin/chatglm3-6b
+>>>>>>> 0b99c5a9e743e3dbe369fdc8d70b15a98c67104b
 OUTPUT_DIR=output/${RUN_NAME}-${DATESTR}-${LR}
 
 # CUDA_VISIBLE_DEVICES=2,3,4,5
