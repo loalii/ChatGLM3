@@ -113,12 +113,6 @@ def web_search(
     # Get related contents from internet. 
     # You should use this function especially when you meet something beyond your knowledge. 
 
-
-    # import os
-    # # os.environ["OPENAI_API_KEY"] = "**"
-    # # os.environ["SERPAPI_API_KEY"] = "**"
-    # os.environ["HTTP_PROXY"]='http://10.10.20.100:1089'
-    # os.environ["HTTPS_PROXY"]='http://10.10.20.100:1089'
     search_engine = 'ddgs'
     if search_engine == 'ddgs':
         from duckduckgo_search import DDGS
