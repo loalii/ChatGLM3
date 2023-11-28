@@ -115,8 +115,8 @@ def web_search(
 
 
     # import os
-    # # os.environ["OPENAI_API_KEY"] = "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"
-    # # os.environ["SERPAPI_API_KEY"] = "1acc98c79ed21041c727e5ecca30eba3380d5d290ce9e56d4434264fdfa34f54"
+    # # os.environ["OPENAI_API_KEY"] = "**"
+    # # os.environ["SERPAPI_API_KEY"] = "**"
     # os.environ["HTTP_PROXY"]='http://10.10.20.100:1089'
     # os.environ["HTTPS_PROXY"]='http://10.10.20.100:1089'
     search_engine = 'ddgs'
