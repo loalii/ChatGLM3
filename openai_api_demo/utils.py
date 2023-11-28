@@ -6,7 +6,8 @@ from torch.nn import Module
 from transformers import PreTrainedModel, PreTrainedTokenizer
 from transformers import AutoModel
 from transformers.generation.logits_process import LogitsProcessor
-from typing import Dict, Union, Optional,Tuple
+from typing import Dict, Union, Optional, Tuple
+
 
 def auto_configure_device_map(num_gpus: int) -> Dict[str, int]:
     # transformer.word_embeddings 占用1层
@@ -60,9 +61,11 @@ def load_model_on_gpus(checkpoint_path: Union[str, os.PathLike], num_gpus: int =
         model = dispatch_model(model, device_map=device_map)
 
     return model
+
+
 class InvalidScoreLogitsProcessor(LogitsProcessor):
     def __call__(
-        self, input_ids: torch.LongTensor, scores: torch.FloatTensor
+            self, input_ids: torch.LongTensor, scores: torch.FloatTensor
     ) -> torch.FloatTensor:
         if torch.isnan(scores).any() or torch.isinf(scores).any():
             scores.zero_()
@@ -104,12 +107,8 @@ def generate_stream_chatglm3(model: PreTrainedModel, tokenizer: PreTrainedTokeni
     temperature = float(params.get("temperature", 1.0))
     repetition_penalty = float(params.get("repetition_penalty", 1.0))
     top_p = float(params.get("top_p", 1.0))
-    max_new_tokens = int(params.get("max_tokens", None))
-    max_length = params.get("max_length", None)
-    # TODO 废弃max_length,使用max_new_tokens
-
+    max_new_tokens = int(params.get("max_tokens", 256))
     echo = params.get("echo", True)
-
     messages = process_chatglm_messages(messages, functions=functions)
     query, role = messages[-1]["content"], messages[-1]["role"]
 
@@ -120,15 +119,6 @@ def generate_stream_chatglm3(model: PreTrainedModel, tokenizer: PreTrainedTokeni
     if input_echo_len >= model.config.seq_length:
         print(f"Input length larger than {model.config.seq_length}")
 
-
-    # TODO 废弃max_length,使用max_new_tokens
-    if max_new_tokens is not None and max_length is not None: # OpenAI接口的用户传入的应该是max_new_tokens才是适配OpenAI接口的。
-        max_length = None
-
-    if max_new_tokens is None and max_length is None:  # 什么参数都没传
-        max_new_tokens = 256
-        max_length = min(max_new_tokens + input_echo_len, model.config.seq_length)
-
     eos_token_id = [
         tokenizer.eos_token_id,
         tokenizer.get_command("<|user|>"),
@@ -136,7 +126,6 @@ def generate_stream_chatglm3(model: PreTrainedModel, tokenizer: PreTrainedTokeni
 
     gen_kwargs = {
         "max_new_tokens": max_new_tokens,
-        "max_length": max_length,
         "do_sample": True if temperature > 1e-5 else False,
         "top_p": top_p,
         "repetition_penalty": repetition_penalty,
@@ -190,7 +179,6 @@ def generate_stream_chatglm3(model: PreTrainedModel, tokenizer: PreTrainedTokeni
 def process_chatglm_messages(messages, functions=None):
     _messages = messages
     messages = []
-
     if functions:
         messages.append(
             {

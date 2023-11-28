@@ -3,8 +3,10 @@
 # Usage: python openai_api.py
 # Visit http://localhost:8000/docs for documents.
 
-# 请在当前目录运行
+# 在OpenAI的API中，max_tokens 等价于 HuggingFace 的 max_new_tokens 而不是 max_length，。
+# 例如，对于6b模型，设置max_tokens = 8192，则会报错，因为扣除历史记录和提示词后，模型不能输出那么多的tokens。
 
+import os
 import time
 from contextlib import asynccontextmanager
 from typing import List, Literal, Optional, Union
@@ -19,6 +21,10 @@ from sse_starlette.sse import EventSourceResponse
 from transformers import AutoTokenizer, AutoModel
 
 from utils import process_response, generate_chatglm3, generate_stream_chatglm3
+
+MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
+TOKENIZER_PATH = os.environ.get("TOKENIZER_PATH", MODEL_PATH)
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 @asynccontextmanager
@@ -71,6 +77,7 @@ class DeltaMessage(BaseModel):
     role: Optional[Literal["user", "assistant", "system"]] = None
     content: Optional[str] = None
     function_call: Optional[FunctionCallResponse] = None
+
 
 class ChatCompletionRequest(BaseModel):
     model: str
@@ -141,14 +148,18 @@ async def create_chat_completion(request: ChatCompletionRequest):
         return EventSourceResponse(generate, media_type="text/event-stream")
 
     response = generate_chatglm3(model, tokenizer, gen_params)
-    usage = UsageInfo()
 
+    # Remove the first newline character
+    if response["text"].startswith("\n"):
+        response["text"] = response["text"][1:]
+    response["text"] = response["text"].strip()
+    usage = UsageInfo()
     function_call, finish_reason = None, "stop"
     if request.functions:
         try:
             function_call = process_response(response["text"], use_tool=True)
         except:
-            logger.warning("Failed to parse tool call")
+            logger.warning("Failed to parse tool call, maybe the response is not a tool call or have been answered.")
 
     if isinstance(function_call, dict):
         finish_reason = "function_call"
@@ -160,16 +171,16 @@ async def create_chat_completion(request: ChatCompletionRequest):
         function_call=function_call if isinstance(function_call, FunctionCallResponse) else None,
     )
 
+    logger.debug(f"==== message ====\n{message}")
+
     choice_data = ChatCompletionResponseChoice(
         index=0,
         message=message,
         finish_reason=finish_reason,
     )
-
-    task_usage = UsageInfo.parse_obj(response["usage"])
-    for usage_key, usage_value in task_usage.dict().items():
+    task_usage = UsageInfo.model_validate(response["usage"])
+    for usage_key, usage_value in task_usage.model_dump().items():
         setattr(usage, usage_key, getattr(usage, usage_key) + usage_value)
-
     return ChatCompletionResponse(model=request.model, choices=[choice_data], object="chat.completion", usage=usage)
 
 
@@ -182,7 +193,7 @@ async def predict(model_id: str, params: dict):
         finish_reason=None
     )
     chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
-    yield "{}".format(chunk.json(exclude_unset=True))
+    yield "{}".format(chunk.model_dump_json(exclude_unset=True))
 
     previous_text = ""
     for new_response in generate_stream_chatglm3(model, tokenizer, params):
@@ -199,7 +210,7 @@ async def predict(model_id: str, params: dict):
             try:
                 function_call = process_response(decoded_unicode, use_tool=True)
             except:
-                print("Failed to parse tool call")
+                logger.warning("Failed to parse tool call, maybe the response is not a tool call or have been answered.")
 
         if isinstance(function_call, dict):
             function_call = FunctionCallResponse(**function_call)
@@ -216,7 +227,7 @@ async def predict(model_id: str, params: dict):
             finish_reason=finish_reason
         )
         chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
-        yield "{}".format(chunk.json(exclude_unset=True))
+        yield "{}".format(chunk.model_dump_json(exclude_unset=True))
 
     choice_data = ChatCompletionResponseStreamChoice(
         index=0,
@@ -224,19 +235,15 @@ async def predict(model_id: str, params: dict):
         finish_reason="stop"
     )
     chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
-    yield "{}".format(chunk.json(exclude_unset=True))
+    yield "{}".format(chunk.model_dump_json(exclude_unset=True))
     yield '[DONE]'
 
 
 if __name__ == "__main__":
 
-    model_path = "THUDM/chatglm3-6b"
-    tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-    model = AutoModel.from_pretrained(model_path, trust_remote_code=True).cuda()
-
-    # 多显卡支持，使用下面两行代替上面一行，将num_gpus改为你实际的显卡数量
-    # from utils import load_model_on_gpus
-    # model = load_model_on_gpus("THUDM/chatglm3-6b", num_gpus=2)
-    model = model.eval()
-
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH, trust_remote_code=True)
+    if 'cuda' in DEVICE:  # AMD, NVIDIA GPU can use Half Precision
+        model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True).to(DEVICE).eval()
+    else:  # CPU, Intel GPU and other GPU can use Float16 Precision Only
+        model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True).float().to(DEVICE).eval()
     uvicorn.run(app, host='0.0.0.0', port=8000, workers=1)

@@ -66,7 +66,7 @@ def append_conversation(
     history.append(conversation)
     conversation.show(placeholder)
 
-def main(top_p: float, temperature: float, prompt_text: str):
+def main(top_p: float, temperature: float, prompt_text: str, repetition_penalty: float):
     manual_mode = st.toggle('Manual mode',
         help='Define your tools in YAML format. You need to supply tool call results manually.'
     )
@@ -129,6 +129,7 @@ def main(top_p: float, temperature: float, prompt_text: str):
                 temperature=temperature,
                 top_p=top_p,
                 stop_sequences=[str(r) for r in (Role.USER, Role.OBSERVATION)],
+                repetition_penalty=repetition_penalty,
             ):
                 token = response.token
                 print("TTTTTTTTTTTOOOOOOOOOOOOOOOOOKKKKKKKKKKKKEEEEEEEEEEEEEEENNNNNNNNNNNN")
@@ -155,8 +156,8 @@ def main(top_p: float, temperature: float, prompt_text: str):
                             markdown_placeholder = message_placeholder.empty()
                             continue
                         case '<|observation|>':
-                            tool, *output_text = output_text.strip().split('\n')
-                            output_text = '\n'.join(output_text)
+                            tool, *call_args_text = output_text.strip().split('\n')
+                            call_args_text = '\n'.join(call_args_text)
                             
                             append_conversation(Conversation(
                                 Role.TOOL,
@@ -167,11 +168,7 @@ def main(top_p: float, temperature: float, prompt_text: str):
                             markdown_placeholder = message_placeholder.empty()
                             
                             try:
-                                print("CCCCCCCCCCCOOOOOOOOOOOOOOODDDDDDDDDDDDDDDEEEEEEEEEEE")
-                                print(output_text)
-                                code = extract_code(output_text)
-                                print("code")
-                                print(code)
+                                code = extract_code(call_args_text)
                                 args = eval(code, {'tool_call': tool_call}, {})
                             except:
                                 st.error('Failed to parse tool call')
