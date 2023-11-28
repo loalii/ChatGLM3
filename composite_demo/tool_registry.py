@@ -65,12 +65,13 @@ def get_tools() -> dict:
 
 @register_tool
 def random_number_generator(
-    seed: Annotated[int, '随机数生成器使用的种子', True], 
+    # seed: Annotated[int, '随机数生成器使用的种子', True], 
     range: Annotated[tuple[int, int], '生成随机数的范围', True],
 ) -> int:
     """
-    随机生成一个数x, 使得 `range[0]` <= x < `range[1]`， 随机数生成的种子使用 `seed`
+    随机生成一个数x, 使得 `range[0]` <= x < `range[1]`
     """
+    seed = 42
     if not isinstance(seed, int):
         raise TypeError("Seed must be an integer")
     if not isinstance(range, tuple):

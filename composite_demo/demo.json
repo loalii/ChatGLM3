@@ -1,0 +1,14 @@
+{
+    "name": "get_weather",
+    "description": "查询给定地区的天气",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "location": {
+                "description": "需要查询天气的地区"
+            }
+        },
+        "required": ["location"]
+    }
+}
+
