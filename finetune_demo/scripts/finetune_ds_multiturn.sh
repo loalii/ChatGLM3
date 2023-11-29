@@ -2,7 +2,7 @@
 
 set -ex
 
-LR=1e-4
+LR=1e-5
 NUM_GPUS=4
 MAX_SEQ_LEN=2048
 DEV_BATCH_SIZE=16
@@ -12,7 +12,7 @@ SAVE_INTERVAL=50
 
 DATESTR=`date +%Y%m%d-%H%M%S`
 RUN_NAME=tool_alpaca_ft
-DATASET_PATH=formatted_data/tool_alpaca_zh.jsonl
+DATASET_PATH=/share/datasets/tmp_share/lilin/processed/tool_alpaca_moss_common/tool_alpaca_glm3.jsonl
 
 BASE_MODEL_PATH=/share/lilin/chatglm3-6b
 OUTPUT_DIR=output/${RUN_NAME}-${DATESTR}-${LR}
@@ -21,7 +21,7 @@ OUTPUT_DIR=output/${RUN_NAME}-${DATESTR}-${LR}
 
 mkdir -p $OUTPUT_DIR
 
-CUDA_VISIBLE_DEVICES="3,4,5,7" torchrun --standalone --nnodes=1 --nproc_per_node=$NUM_GPUS finetune.py \
+CUDA_VISIBLE_DEVICES="1,3,5,7" torchrun --standalone --nnodes=1 --nproc_per_node=$NUM_GPUS finetune.py \
     --train_format multi-turn \
     --train_file $DATASET_PATH \
     --max_seq_length $MAX_SEQ_LEN \
